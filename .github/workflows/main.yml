@@ -1,0 +1,30 @@
+name: Telegram Daily Bot
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram message
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: |
+          if [ "${{ github.event.schedule }}" = "0 3 * * *" ]; then
+            MESSAGE=$'🌞 Доброе утро!\n\nНазови три вещи, за которые ты благодарна сегодня. 💛'
+          elif [ "${{ github.event.schedule }}" = "0 15 * * *" ]; then
+            MESSAGE=$'🌙 Как прошёл твой день?\n\n🟢 Отлично\n😊 Хорошо\n😐 Нейтрально\n🔴 Ужасно'
+          else
+            MESSAGE=$'✅ Проверка: Telegram-бот работает!'
+          fi
+
+          curl --fail --silent --show-error \
+            -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}"

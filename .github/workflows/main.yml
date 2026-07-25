@@ -2,8 +2,11 @@ name: Telegram Daily Bot
 
 on:
   schedule:
-    - cron: "7 3 * * *"
-    - cron: "7 15 * * *"
+    - cron: "7 8 * * *"
+      timezone: "Asia/Yekaterinburg"
+    - cron: "7 20 * * *"
+      timezone: "Asia/Yekaterinburg"
+
   workflow_dispatch:
     inputs:
       message_type:
@@ -47,6 +50,11 @@ jobs:
             MESSAGE=$'🌞 Доброе утро, Венера!\n\nСегодня поблагодари за:\n\n💛 Новые возможности, которые принесёт этот день.\n🌿 Здоровье и силы двигаться к своим целям.\n🤝 Людей, которые поддерживают тебя и помогают расти.\n\nСделай паузу на минуту и добавь ещё 3 своих благодарности. Пусть это станет хорошим началом дня. ✨'
 
             curl --fail --silent --show-error \
+              -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${CHAT_ID}" \
+              --data-urlencode "text=${MESSAGE}" \
+              --data-urlencode 'reply_markup={"remove_keyboard":true}'
+          fi
               -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
               --data-urlencode "chat_id=${CHAT_ID}" \
               --data-urlencode "text=${MESSAGE}" \

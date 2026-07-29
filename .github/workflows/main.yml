@@ -2,13 +2,11 @@ name: Telegram Daily Bot
 
 on:
   schedule:
-    # Каждый день в 08:00 по Екатеринбургу
-    - cron: "0 8 * * *"
-      timezone: "Asia/Yekaterinburg"
+    # 03:00 UTC = 08:00 по Екатеринбургу
+    - cron: "0 3 * * *"
 
-    # Каждый день в 20:00 по Екатеринбургу
-    - cron: "0 20 * * *"
-      timezone: "Asia/Yekaterinburg"
+    # 15:00 UTC = 20:00 по Екатеринбургу
+    - cron: "0 15 * * *"
 
   workflow_dispatch:
     inputs:
@@ -35,7 +33,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             MESSAGE_TYPE="${MANUAL_TYPE}"
-          elif [ "${{ github.event.schedule }}" = "0 20 * * *" ]; then
+          elif [ "${{ github.event.schedule }}" = "0 15 * * *" ]; then
             MESSAGE_TYPE="evening"
           else
             MESSAGE_TYPE="morning"
@@ -43,22 +41,9 @@ jobs:
 
           if [ "${MESSAGE_TYPE}" = "evening" ]; then
 
-            MESSAGE=$'🌙 Венера, привет!\n\nКак прошёл твой день сегодня?\n\nВыбери настроение:\n\n🟢 Отлично\n😊 Хорошо\n😐 Нейтрально\n🔴 Ужасно\n\nПосле выбора коротко напиши, почему ты так оценила свой день.\n\n✨ И подумай: что бы ты сделала, чтобы сегодняшний день стал ещё лучше?'
+            MESSAGE=$'🌙 Венера, привет!\n\nКак прошёл твой день вчера?\n\nВыбери настроение:\n\n🟢 Отлично\n😊 Хорошо\n😐 Нейтрально\n🔴 Ужасно\n\nПосле выбора коротко напиши, почему ты так оценила день.\n\n✨ Что можно было сделать, чтобы этот день стал ещё лучше?'
 
-            KEYBOARD='{
-              "keyboard": [
-                [
-                  {"text": "🟢 Отлично"},
-                  {"text": "😊 Хорошо"}
-                ],
-                [
-                  {"text": "😐 Нейтрально"},
-                  {"text": "🔴 Ужасно"}
-                ]
-              ],
-              "resize_keyboard": true,
-              "one_time_keyboard": true
-            }'
+            KEYBOARD='{"keyboard":[[{"text":"🟢 Отлично"},{"text":"😊 Хорошо"}],[{"text":"😐 Нейтрально"},{"text":"🔴 Ужасно"}]],"resize_keyboard":true,"one_time_keyboard":true}'
 
             curl --fail --silent --show-error \
               -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
@@ -72,6 +57,11 @@ jobs:
 
             curl --fail --silent --show-error \
               -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${CHAT_ID}" \
+              --data-urlencode "text=${MESSAGE}" \
+              --data-urlencode 'reply_markup={"remove_keyboard":true}'
+
+          fi
               --data-urlencode "chat_id=${CHAT_ID}" \
               --data-urlencode "text=${MESSAGE}" \
               --data-urlencode 'reply_markup={"remove_keyboard":true}'
